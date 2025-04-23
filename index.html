@@ -99,6 +99,14 @@
       ctx.arc(cx, cy, radius * 0.9, 0, 2*Math.PI);
       ctx.stroke();
       
+      // Add "1440TIME™" text at the top
+      ctx.fillStyle = '#ff0000';
+      const titleFontSize = Math.max(12, W * 0.04);
+      ctx.font = `bold ${titleFontSize}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('1440TIME™', cx, cy - radius - 15);
+      
       // Tick marks (144 total, larger every 12)
       for (let i = 0; i < 144; i++) {
         const angle = (i / 144) * 2*Math.PI - Math.PI/2;
@@ -272,7 +280,7 @@
       
       ctx.fillStyle = '#ff0000';
       ctx.font = `bold ${mediumFontSize}px Arial`;
-      ctx.fillText('1440TIME™', cx, cy);
+      ctx.fillText('1440X', cx, cy);
       
       // Display tokens as number - make it blink if a minute just passed
       if (isBlinking && Math.floor(Date.now() / 200) % 2 === 0) {
