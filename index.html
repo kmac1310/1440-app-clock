@@ -37,6 +37,15 @@
     const cx = W / 2, cy = H / 2;
     const radius = Math.min(W, H) * 0.45;
     
+    // Sun/Moon transition parameters
+    const sunriseHour = 6;  // 6 AM
+    const sunsetHour = 18;  // 6 PM
+    const celestialRadius = radius * 0.1;
+    
+    // Track previous minute to detect changes
+    let previousMinute = new Date().getMinutes();
+    let isMinuteBlinking = false;
+    
     function drawDial() {
       ctx.clearRect(0, 0, W, H);
       
@@ -77,102 +86,93 @@
       }
     }
     
-    function drawHandAndInfo() {
-      const now = new Date();
-      const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-      const elapsed = (now.getTime() - midnight) / 1000;      // seconds since midnight
-      const totalSecs = 24 * 60 * 60;                        // seconds in a day
-      const pctLeft = (totalSecs - elapsed) / totalSecs;     // fraction of day remaining
-      const tokens = Math.floor(1440 * pctLeft);             // minutes left
+    // Function to draw sun or moon based on time of day
+    function drawCelestialBody(now) {
+      const hour = now.getHours();
+      const totalDayMinutes = 24 * 60;
+      const currentMinuteOfDay = hour * 60 + now.getMinutes();
       
-      // Draw center circle
-      ctx.fillStyle = '#222';
-      ctx.beginPath();
-      ctx.arc(cx, cy, radius * 0.15, 0, 2*Math.PI);
-      ctx.fill();
-      ctx.strokeStyle = '#555';
-      ctx.lineWidth = 2;
-      ctx.stroke();
+      // Calculate angle based on time (0 at midnight, 180 at noon)
+      const angle = (currentMinuteOfDay / totalDayMinutes) * 2 * Math.PI - Math.PI/2;
       
-      // ---- RED MINUTE HAND: tokensRemaining ----
-      const handAngle = -Math.PI/2 + (1 - tokens/1440) * 2 * Math.PI;
+      // Calculate position along top semicircle
+      // Use just the top half of the circle for sun/moon path
+      let yOffset = Math.sin(angle);
+      if (yOffset > 0) yOffset = 0; // Keep the celestial body in the top half
       
-      // Draw shadow for hand
-      ctx.strokeStyle = 'rgba(255,0,0,0.3)';
-      ctx.lineWidth = 8;
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.lineTo(
-        cx + Math.cos(handAngle) * radius * 0.75,
-        cy + Math.sin(handAngle) * radius * 0.75
-      );
-      ctx.stroke();
+      const pathRadius = radius * 1.3;
+      const x = cx + Math.cos(angle) * pathRadius;
+      const y = cy + yOffset * pathRadius - radius * 0.7; // Always above the clock
       
-      // Draw hand
-      ctx.strokeStyle = '#f00';
-      ctx.lineWidth = 4;
-      ctx.beginPath();
-      ctx.moveTo(cx, cy);
-      ctx.lineTo(
-        cx + Math.cos(handAngle) * radius * 0.75,
-        cy + Math.sin(handAngle) * radius * 0.75
-      );
-      ctx.stroke();
-      
-      // ---- CENTER TEXT ----
-      // Current time
-      let h = now.getHours(), m = now.getMinutes();
-      const ampm = h >= 12 ? 'PM' : 'AM';
-      h = h % 12 || 12;
-      m = m < 10 ? '0' + m : m;
-      const timeStr = `${h}:${m} ${ampm}`;
-      
-      ctx.fillStyle = '#ccc';
-      ctx.font = '18px Arial';
-      ctx.fillText(timeStr, cx, cy - radius * 0.3);
-      
-      ctx.fillStyle = '#ff0000';
-      ctx.font = 'bold 22px Arial';
-      ctx.fillText('1440TIME™', cx, cy);
-      
-      // Display tokens as number
-      ctx.font = 'bold 32px Arial';
-      ctx.fillText(tokens.toString(), cx, cy + radius * 0.25);
-      
-      // No "min left" text as requested
-    }
-    
-    // Track previous minute to detect changes
-    let previousMinute = new Date().getMinutes();
-    let isMinuteBlinking = false;
-    
-    function update() {
-      drawDial();
-      
-      // Check if minute has changed
-      const now = new Date();
-      const currentMinute = now.getMinutes();
-      
-      if (currentMinute !== previousMinute) {
-        // Start blinking effect
-        isMinuteBlinking = true;
-        let blinkCount = 0;
-        const blinkInterval = setInterval(() => {
-          if (blinkCount >= 6) { // 3 on-off cycles
-            clearInterval(blinkInterval);
-            isMinuteBlinking = false;
-          }
-          blinkCount++;
-        }, 200);
+      // Determine if day or night
+      if (hour >= sunriseHour && hour < sunsetHour) {
+        // Draw sun
+        const sunGradient = ctx.createRadialGradient(x, y, 0, x, y, celestialRadius);
+        sunGradient.addColorStop(0, '#ffff00');
+        sunGradient.addColorStop(0.7, '#ffa500');
+        sunGradient.addColorStop(1, 'rgba(255, 69, 0, 0)');
         
-        // Update previous minute
-        previousMinute = currentMinute;
+        ctx.fillStyle = sunGradient;
+        ctx.beginPath();
+        ctx.arc(x, y, celestialRadius * 1.5, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // Sun rays
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 2;
+        
+        for (let i = 0; i < 8; i++) {
+          const rayAngle = i * Math.PI / 4;
+          const rayLength = celestialRadius * 0.7;
+          const innerRadius = celestialRadius * 1.2;
+          const outerRadius = celestialRadius * 1.9;
+          
+          ctx.beginPath();
+          ctx.moveTo(
+            x + Math.cos(rayAngle) * innerRadius,
+            y + Math.sin(rayAngle) * innerRadius
+          );
+          ctx.lineTo(
+            x + Math.cos(rayAngle) * outerRadius,
+            y + Math.sin(rayAngle) * outerRadius
+          );
+          ctx.stroke();
+        }
+      } else {
+        // Draw moon
+        // First draw the full moon circle
+        ctx.fillStyle = '#ddd';
+        ctx.beginPath();
+        ctx.arc(x, y, celestialRadius, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // Add some craters for realism
+        ctx.fillStyle = '#bbb';
+        // Crater 1
+        ctx.beginPath();
+        ctx.arc(x - celestialRadius * 0.4, y - celestialRadius * 0.2, celestialRadius * 0.2, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // Crater 2
+        ctx.beginPath();
+        ctx.arc(x + celestialRadius * 0.3, y + celestialRadius * 0.3, celestialRadius * 0.15, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // Crater 3
+        ctx.beginPath();
+        ctx.arc(x + celestialRadius * 0.1, y - celestialRadius * 0.4, celestialRadius * 0.1, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // Add a subtle glow
+        const moonGlow = ctx.createRadialGradient(x, y, celestialRadius, x, y, celestialRadius * 1.5);
+        moonGlow.addColorStop(0, 'rgba(200, 200, 255, 0.3)');
+        moonGlow.addColorStop(1, 'rgba(200, 200, 255, 0)');
+        
+        ctx.fillStyle = moonGlow;
+        ctx.beginPath();
+        ctx.arc(x, y, celestialRadius * 1.5, 0, 2 * Math.PI);
+        ctx.fill();
       }
-      
-      // Regular display but with blinking minute value
-      drawHandAndInfo(isMinuteBlinking);
-      
-      requestAnimationFrame(update);
     }
     
     function drawHandAndInfo(isBlinking = false) {
@@ -243,6 +243,38 @@
       }
       
       // No "min left" text as requested
+    }
+    
+    function update() {
+      drawDial();
+      
+      // Check if minute has changed
+      const now = new Date();
+      const currentMinute = now.getMinutes();
+      
+      if (currentMinute !== previousMinute) {
+        // Start blinking effect
+        isMinuteBlinking = true;
+        let blinkCount = 0;
+        const blinkInterval = setInterval(() => {
+          if (blinkCount >= 6) { // 3 on-off cycles
+            clearInterval(blinkInterval);
+            isMinuteBlinking = false;
+          }
+          blinkCount++;
+        }, 200);
+        
+        // Update previous minute
+        previousMinute = currentMinute;
+      }
+      
+      // Draw sun/moon based on time of day
+      drawCelestialBody(now);
+      
+      // Regular display but with blinking minute value
+      drawHandAndInfo(isMinuteBlinking);
+      
+      requestAnimationFrame(update);
     }
     
     update();
