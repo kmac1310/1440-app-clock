@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>1440TIME™ Dial</title>
+  <style>
+    body, html {
+      margin: 0; height: 100%; background: #000;
+      display: flex; align-items: center; justify-content: center;
+      font-family: Arial, sans-serif;
+    }
+    canvas {
+      display: block;
+      background: #000;
+    }
+    .info-panel {
+      position: absolute;
+      bottom: 20px;
+      color: #888;
+      text-align: center;
+      font-size: 14px;
+      max-width: 500px;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="dialCanvas" width="500" height="500"></canvas>
+  <div class="info-panel">
+    1440TIME™ shows minutes remaining in your day. The dial counts down from 1440 (total minutes in a day) to 0 at midnight.
+  </div>
+  <script>
+    const canvas = document.getElementById('dialCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    const cx = W / 2, cy = H / 2;
+    const radius = Math.min(W, H) * 0.45;
+    
+    function drawDial() {
+      ctx.clearRect(0, 0, W, H);
+      
+      // Outer rings
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 12;
+      ctx.beginPath(); ctx.arc(cx, cy, radius + 6, 0, 2*Math.PI); ctx.stroke();
+      
+      ctx.strokeStyle = '#444';
+      ctx.lineWidth = 4;
+      ctx.beginPath(); ctx.arc(cx, cy, radius - 4, 0, 2*Math.PI); ctx.stroke();
+      
+      // Tick marks (144 total, larger every 12)
+      for (let i = 0; i < 144; i++) {
+        const angle = (i / 144) * 2*Math.PI - Math.PI/2;
+        const len = (i % 12 === 0) ? radius * 0.12 : radius * 0.05;
+        const x1 = cx + Math.cos(angle) * (radius - len);
+        const y1 = cy + Math.sin(angle) * (radius - len);
+        const x2 = cx + Math.cos(angle) * radius;
+        const y2 = cy + Math.sin(angle) * radius;
+        
+        ctx.strokeStyle = (i % 12 === 0) ? '#666' : '#444';
+        ctx.lineWidth = (i % 12 === 0) ? 2.5 : 1.5;
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+      }
+      
+      // Labels every 120 tokens (12 labels)
+      ctx.fillStyle = '#fff';
+      ctx.font = '18px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      for (let i = 0; i < 12; i++) {
+        const angle = (i / 12) * 2*Math.PI - Math.PI/2;
+        const label = 1440 - i*120;
+        const x = cx + Math.cos(angle) * (radius * 0.8);
+        const y = cy + Math.sin(angle) * (radius * 0.8);
+        ctx.fillText(label.toString(), x, y);
+      }
+    }
+    
+    function drawHandAndInfo() {
+      const now = new Date();
+      const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      const elapsed = (now.getTime() - midnight) / 1000;      // seconds since midnight
+      const totalSecs = 24 * 60 * 60;                        // seconds in a day
+      const pctLeft = (totalSecs - elapsed) / totalSecs;     // fraction of day remaining
+      const tokens = Math.floor(1440 * pctLeft);             // minutes left
+      
+      // Draw center circle
+      ctx.fillStyle = '#222';
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius * 0.15, 0, 2*Math.PI);
+      ctx.fill();
+      ctx.strokeStyle = '#555';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      
+      // ---- RED MINUTE HAND: tokensRemaining ----
+      const handAngle = -Math.PI/2 + (1 - tokens/1440) * 2 * Math.PI;
+      
+      // Draw shadow for hand
+      ctx.strokeStyle = 'rgba(255,0,0,0.3)';
+      ctx.lineWidth = 8;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(
+        cx + Math.cos(handAngle) * radius * 0.75,
+        cy + Math.sin(handAngle) * radius * 0.75
+      );
+      ctx.stroke();
+      
+      // Draw hand
+      ctx.strokeStyle = '#f00';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(
+        cx + Math.cos(handAngle) * radius * 0.75,
+        cy + Math.sin(handAngle) * radius * 0.75
+      );
+      ctx.stroke();
+      
+      // ---- CENTER TEXT ----
+      // Current time
+      let h = now.getHours(), m = now.getMinutes();
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      m = m < 10 ? '0' + m : m;
+      const timeStr = `${h}:${m} ${ampm}`;
+      
+      ctx.fillStyle = '#ccc';
+      ctx.font = '18px Arial';
+      ctx.fillText(timeStr, cx, cy - radius * 0.3);
+      
+      ctx.fillStyle = '#ff0000';
+      ctx.font = 'bold 22px Arial';
+      ctx.fillText('1440TIME™', cx, cy);
+      
+      // Display tokens as number
+      ctx.font = 'bold 32px Arial';
+      ctx.fillText(tokens.toString(), cx, cy + radius * 0.25);
+      
+      // No "min left" text as requested
+    }
+    
+    function update() {
+      drawDial();
+      drawHandAndInfo();
+      
+      // Add minute blinking effect
+      const now = new Date();
+      if (now.getSeconds() === 0) {
+        // Flash the background when a minute elapses
+        document.body.style.background = "#300";
+        setTimeout(() => {
+          document.body.style.background = "#000";
+        }, 500);
+      }
+      
+      requestAnimationFrame(update);
+    }
+    
+    update();
+  </script>
+</body>
+</html>
