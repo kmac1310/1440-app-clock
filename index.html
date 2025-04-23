@@ -139,21 +139,23 @@
     // Function to draw sun or moon based on time of day
     function drawCelestialBody(now) {
       const hour = now.getHours();
-      const totalDayMinutes = 24 * 60;
-      const currentMinuteOfDay = hour * 60 + now.getMinutes();
+      const minute = now.getMinutes();
+      const totalMinutesInDay = 24 * 60;
+      const currentMinuteOfDay = hour * 60 + minute;
       
-      // Calculate angle based on time (0 at midnight, 180 at noon)
-      const angle = (currentMinuteOfDay / totalDayMinutes) * 2 * Math.PI - Math.PI/2;
+      // Calculate angle based on 24-hour clock
+      // At midnight (0:00), angle is -90 degrees (top)
+      // At noon (12:00), angle is 90 degrees (bottom)
+      // This follows the same logic as the minute hand
+      const angle = ((currentMinuteOfDay / totalMinutesInDay) * 2 * Math.PI) - (Math.PI/2);
       
-      // Calculate position along top semicircle
-      let yOffset = Math.sin(angle);
-      if (yOffset > 0) yOffset = 0; // Keep the celestial body in the top half
+      // Position on the clock face matching the time
+      // Keep the celestial body slightly outside the tick marks
+      const celestialDistance = radius * 1.1;
+      const x = cx + Math.cos(angle) * celestialDistance;
+      const y = cy + Math.sin(angle) * celestialDistance;
       
-      const pathRadius = radius * 1.3;
-      const x = cx + Math.cos(angle) * pathRadius;
-      const y = cy + yOffset * pathRadius - radius * 0.7;
-      
-      const celestialRadius = radius * 0.1;
+      const celestialRadius = radius * 0.09;
       
       // Determine if day or night
       if (hour >= sunriseHour && hour < sunsetHour) {
