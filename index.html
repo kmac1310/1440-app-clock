@@ -126,13 +126,14 @@
         ctx.stroke();
       }
       
-      // Labels every 120 tokens (12 labels)
+      // Labels every 120 tokens (12 labels) and dashes between them
       ctx.fillStyle = '#fff';
       const fontSize = Math.max(10, W * 0.03);
       ctx.font = `${fontSize}px Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       
+      // First add the main 120-minute interval labels
       for (let i = 0; i < 12; i++) {
         const angle = (i / 12) * 2*Math.PI - Math.PI/2;
         const label = 1440 - i*120;
@@ -141,6 +142,28 @@
         const y = cy + Math.sin(angle) * labelDist;
         
         ctx.fillText(label.toString(), x, y);
+      }
+      
+      // Now add dash marks at 60-minute intervals (halfway between the 120-minute marks)
+      ctx.strokeStyle = '#777';
+      ctx.lineWidth = W * 0.004;
+      
+      for (let i = 0; i < 24; i++) {
+        if (i % 2 !== 0) { // Only draw dashes at odd intervals (60-minute intervals)
+          const angle = (i / 24) * 2*Math.PI - Math.PI/2;
+          const dashOuterDist = radius * 0.98;
+          const dashInnerDist = radius * 0.9;
+          
+          const x1 = cx + Math.cos(angle) * dashInnerDist;
+          const y1 = cy + Math.sin(angle) * dashInnerDist;
+          const x2 = cx + Math.cos(angle) * dashOuterDist;
+          const y2 = cy + Math.sin(angle) * dashOuterDist;
+          
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
+        }
       }
     }
     
