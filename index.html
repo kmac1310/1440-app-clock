@@ -103,7 +103,7 @@
       ctx.stroke();
       
       // Add "1440TIME™" text at the top
-      ctx.fillStyle = '#ffffff';
+      ctx.fillStyle = '#00ff00'; // Matrix green
       const titleFontSize = Math.max(12, W * 0.04);
       ctx.font = `bold ${titleFontSize}px Arial`;
       ctx.textAlign = 'center';
@@ -167,6 +167,29 @@
           ctx.lineTo(x2, y2);
           ctx.stroke();
         }
+      }
+      
+      // Add prominent markers at quarter points (1440, 1080, 720, 360)
+      const quarterPoints = [0, 3, 6, 9]; // Corresponds to 1440, 1080, 720, 360
+      ctx.strokeStyle = '#00ff00'; // Matrix green to match "Think Outside the Clock"
+      ctx.lineWidth = W * 0.006; // Slightly thinner line
+      
+      for (let i of quarterPoints) {
+        const angle = (i / 12) * 2*Math.PI - Math.PI/2;
+        
+        // Draw smaller but still visible marker
+        const markerOuterDist = radius * 1.02;
+        const markerInnerDist = radius * 0.88;
+        
+        const x1 = cx + Math.cos(angle) * markerInnerDist;
+        const y1 = cy + Math.sin(angle) * markerInnerDist;
+        const x2 = cx + Math.cos(angle) * markerOuterDist;
+        const y2 = cy + Math.sin(angle) * markerOuterDist;
+        
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
       }
     }
     
@@ -266,8 +289,8 @@
       const handAngle = -Math.PI/2 + (1 - tokens/1440) * 2 * Math.PI;
       
       // Draw shadow for hand
-      ctx.strokeStyle = 'rgba(255,0,0,0.3)';
-      ctx.lineWidth = W * 0.016;
+      ctx.strokeStyle = 'rgba(255,0,0,0.2)';
+      ctx.lineWidth = W * 0.01; // Thinner shadow
       ctx.beginPath();
       ctx.moveTo(cx, cy);
       ctx.lineTo(
@@ -278,7 +301,7 @@
       
       // Draw hand
       ctx.strokeStyle = '#f00';
-      ctx.lineWidth = W * 0.008;
+      ctx.lineWidth = W * 0.005; // Thinner hand
       ctx.beginPath();
       ctx.moveTo(cx, cy);
       ctx.lineTo(
@@ -327,9 +350,13 @@
       if (isBlinking && Math.floor(Date.now() / 200) % 2 === 0) {
         // Skip drawing the number during blink off phase
       } else {
-        ctx.fillStyle = '#fff';
+        ctx.fillStyle = '#00ff00'; // Matrix green for the remaining minutes
         ctx.font = `bold ${largeFontSize}px Arial`;
+        // Add text glow effect
+        ctx.shadowColor = 'rgba(0, 255, 0, 0.5)';
+        ctx.shadowBlur = 10;
         ctx.fillText(tokens.toString(), cx, cy + radius * 0.25);
+        ctx.shadowBlur = 0; // Reset shadow
       }
     }
     
