@@ -104,8 +104,7 @@
       
       // Add "1440TIME™" text at the top
       ctx.fillStyle = '#00ff00'; // Matrix green
-      const titleFontSize = Math.max(12, W * 0.04);
-      ctx.font = `bold ${titleFontSize}px Arial`;
+      ctx.font = `bold ${Math.max(12, W * 0.04)}px Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('1440TIME™', cx, cy - radius - 15);
@@ -129,14 +128,12 @@
         ctx.stroke();
       }
       
-      // Labels every 120 tokens (12 labels) and dashes between them
+      // Labels every 120 tokens (12 labels)
       ctx.fillStyle = '#fff';
-      const fontSize = Math.max(10, W * 0.03);
-      ctx.font = `${fontSize}px Arial`;
+      ctx.font = `bold ${Math.max(10, W * 0.03)}px Arial`; // Bold white font
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       
-      // First add the main 120-minute interval labels
       for (let i = 0; i < 12; i++) {
         const angle = (i / 12) * 2*Math.PI - Math.PI/2;
         const label = 1440 - i*120;
@@ -170,10 +167,10 @@
       }
       
       // Add prominent markers at quarter points (1440, 1080, 720, 360)
-      const quarterPoints = [0, 3, 6, 9]; // Corresponds to 1440, 1080, 720, 360
       ctx.strokeStyle = '#00ff00'; // Matrix green to match "Think Outside the Clock"
       ctx.lineWidth = W * 0.006; // Slightly thinner line
       
+      const quarterPoints = [0, 3, 6, 9]; // Corresponds to 1440, 1080, 720, 360
       for (let i of quarterPoints) {
         const angle = (i / 12) * 2*Math.PI - Math.PI/2;
         
@@ -318,18 +315,14 @@
       m = m < 10 ? '0' + m : m;
       const timeStr = `${h}:${m} ${ampm}`;
       
-      // Responsive font sizes
-      const smallFontSize = Math.max(8, W * 0.025); // Smaller standard time
-      const mediumFontSize = Math.max(12, W * 0.045);
-      const largeFontSize = Math.max(16, W * 0.08);
-      
+      // Display standard time
       ctx.fillStyle = '#00ccff'; // Matrix blue pill color
-      ctx.font = `${smallFontSize}px Arial`;
+      ctx.font = `${Math.max(10, W * 0.03)}px Arial`; // Slightly larger standard time
       ctx.fillText(timeStr, cx, cy - radius * 0.3);
       
       // Display 1440X with glowing X - slightly smaller
+      const centerFontSize = Math.max(10, W * 0.035); // Smaller size for 1440X
       ctx.fillStyle = '#ff0000';
-      const centerFontSize = Math.max(10, W * 0.035); // Smaller size
       ctx.font = `bold ${centerFontSize}px Arial`;
       
       // Draw "1440" first
@@ -351,11 +344,11 @@
       if (isBlinking && Math.floor(Date.now() / 200) % 2 === 0) {
         // Skip drawing the number during blink off phase
       } else {
-        ctx.fillStyle = '#00ff00'; // Matrix green for the remaining minutes
-        ctx.font = `bold ${largeFontSize}px Arial`;
         // Add text glow effect
         ctx.shadowColor = 'rgba(0, 255, 0, 0.5)';
         ctx.shadowBlur = 10;
+        ctx.fillStyle = '#00ff00'; // Matrix green for the remaining minutes
+        ctx.font = `bold ${Math.max(16, W * 0.08)}px Arial`;
         ctx.fillText(tokens.toString(), cx, cy + radius * 0.25);
         ctx.shadowBlur = 0; // Reset shadow
       }
