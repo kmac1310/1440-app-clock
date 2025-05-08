@@ -10,8 +10,8 @@
       font-family: 'Inter', sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #f8fafc;
-      color: #1e293b;
+      background-color: #000;
+      color: #00ff00;
       transition: background-color 0.5s, color 0.5s;
     }
 
@@ -78,8 +78,8 @@
     }
 
     footer {
-      background: #222;
-      color: #eee;
+      background: #000;
+      color: #00ff00;
       padding: 2rem;
       text-align: center;
     }
@@ -139,9 +139,6 @@
       const finalMessageDiv = document.getElementById("finalMessage");
       const instructions = document.getElementById("instructions");
 
-      const originalBg = body.style.backgroundColor;
-      const originalColor = body.style.color;
-
       body.style.backgroundColor = "#000";
       body.style.color = "#00ff00";
       tokensDiv.innerText = "Calibrating... Please hold for 20 seconds.";
@@ -159,8 +156,6 @@
 
       setTimeout(() => {
         clearInterval(interval);
-        body.style.backgroundColor = originalBg || "#f8fafc";
-        body.style.color = originalColor || "#1e293b";
 
         const now = new Date();
         const totalMinutesPassed = now.getHours() * 60 + now.getMinutes();
@@ -173,7 +168,6 @@
       }, 20000);
     }
 
-    // DIAL CLOCK STARTER
     function startClock() {
       const canvas = document.getElementById("dialCanvas");
       const ctx = canvas.getContext("2d");
