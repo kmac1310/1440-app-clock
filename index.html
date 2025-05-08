@@ -1,233 +1,394 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>1440TIME Landing Page</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>1440TIME™ Dial</title>
   <style>
-    body {
-      font-family: 'Inter', sans-serif;
+    body, html {
       margin: 0;
       padding: 0;
-      background-color: #000;
-      color: #00ff00;
-      transition: background-color 0.5s, color 0.5s;
-    }
-
-    .hero {
-      background: linear-gradient(to bottom right, #2563eb, #1e40af);
-      color: #ffffff;
-      text-align: center;
-      padding: 10rem 2rem 6rem;
-    }
-
-    .hero h1 {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-
-    .hero p {
-      font-size: 1.25rem;
-      margin-bottom: 2rem;
-    }
-
-    .hero-buttons button,
-    .hero-buttons a {
-      margin: 0 0.5rem;
-      padding: 1rem 2rem;
-      font-size: 1rem;
-      border-radius: 0.5rem;
-      border: none;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background-color 0.3s;
-    }
-
-    .hero-buttons .calibrate {
-      background-color: #ffffff;
-      color: #1e40af;
-    }
-
-    .hero-buttons .shop {
-      background-color: #ffffff;
-      color: #2563eb;
-    }
-
-    #tokens, #finalMessage, #instructions {
-      padding: 1rem;
-      margin-top: 2rem;
-      font-size: 1.75rem;
-      text-align: center;
-      max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    #clockContainer {
+      height: 100%;
+      width: 100%;
+      background: #000;
       display: flex;
+      flex-direction: column;
+      align-items: center;
       justify-content: center;
-      margin-top: 2rem;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
     }
-
+    
     #dialCanvas {
       display: block;
       background: #000;
-      max-width: 90vw;
-      max-height: 70vh;
+      max-width: 100vw;
+      max-height: 90vh;
     }
-
-    footer {
-      background: #000;
-      color: #00ff00;
-      padding: 2rem;
+    
+    .info-panel {
+      color: #00ff00; /* Matrix green */
       text-align: center;
+      font-size: 16px;
+      font-weight: bold;
+      margin-top: 15px;
+      font-family: 'Courier New', monospace;
+      letter-spacing: 1px;
+      text-shadow: 0 0 8px rgba(0, 255, 0, 0.7);
     }
   </style>
 </head>
 <body>
-  <header class="hero">
-    <h1>Master Your Minutes</h1>
-    <p>Time isn't endless. It's 1,440 tokens a day. Spend them wisely.</p>
-    <div class="hero-buttons">
-      <button class="calibrate" id="calibrateBtn" onclick="initCalibration()">Free Calibration to 1440TIME</button>
-      <a href="#shop" class="shop">Shop Clocks & Books</a>
-    </div>
-  </header>
-
-  <main>
-    <div id="instructions"></div>
-    <div id="tokens"></div>
-    <div id="finalMessage"></div>
-    <div id="clockContainer" style="display:none">
-      <canvas id="dialCanvas" width="300" height="300"></canvas>
-    </div>
-  </main>
-
-  <footer>
-    <p>&copy; 2025 1440TIME™ | US Patent US20150023139A1</p>
-  </footer>
-
+  <canvas id="dialCanvas" width="300" height="300"></canvas>
+  <div class="info-panel">
+    Think Outside the Clock
+  </div>
+  
   <script>
-    function initCalibration() {
-      const body = document.body;
-      const calibrateBtn = document.getElementById("calibrateBtn");
-      const instructions = document.getElementById("instructions");
-      const tokensDiv = document.getElementById("tokens");
-      const finalMessageDiv = document.getElementById("finalMessage");
-
-      calibrateBtn.innerText = "Free Calibration 1440TIME Hack";
-
-      instructions.innerText = `The 1440TIME Hack begins in 20 seconds.\n\nWatch the hyper-seconds wiz by for just 20 seconds.\n\nConcentrate on the hyper-seconds only.\n\nWhen complete, you will enter the world of 1440X and visibly see how many slow minutes (tokens) you have left to spend today.\n\nThe minute now will seem to move in slow motion.\n\nWelcome to 1440TIME!`;
-
-      setTimeout(() => {
-        let countdown = 5;
-        const countdownInterval = setInterval(() => {
-          instructions.innerText = `Calibration begins in ${countdown} seconds...`;
-          countdown--;
-          if (countdown < 0) {
-            clearInterval(countdownInterval);
-            startCalibration();
-          }
-        }, 1000);
-      }, 15000);
+    const canvas = document.getElementById('dialCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Set canvas size based on viewport
+    function resizeCanvas() {
+      const size = Math.min(window.innerWidth * 0.9, window.innerHeight * 0.8);
+      canvas.width = size;
+      canvas.height = size;
     }
-
-    function startCalibration() {
-      const body = document.body;
-      const tokensDiv = document.getElementById("tokens");
-      const finalMessageDiv = document.getElementById("finalMessage");
-      const instructions = document.getElementById("instructions");
-
-      body.style.backgroundColor = "#000";
-      body.style.color = "#00ff00";
-      tokensDiv.innerText = "Calibrating... Please hold for 20 seconds.";
-      finalMessageDiv.innerText = "";
-      instructions.innerText = "";
-
-      const startTime = Date.now();
-      const interval = setInterval(() => {
-        const elapsed = (Date.now() - startTime) / 1000;
-        tokensDiv.innerText = `Hyper Seconds: ${elapsed.toFixed(3)}`;
-        if (elapsed < 20 && elapsed % 1 < 0.05) {
-          new Audio("https://www.soundjay.com/button/sounds/beep-07.mp3").play();
-        }
-      }, 10);
-
-      setTimeout(() => {
-        clearInterval(interval);
-
-        const now = new Date();
-        const totalMinutesPassed = now.getHours() * 60 + now.getMinutes();
-        const tokensLeft = 1440 - totalMinutesPassed;
-
-        tokensDiv.innerText = `Tokens left to Spend today: ${tokensLeft}`;
-        finalMessageDiv.innerText = "Welcome to the 1440X Experience. Spend your tokens wisely.\n\n1440TIME is not just time management — it’s time ownership. Make every token count.";
-        document.getElementById("clockContainer").style.display = "flex";
-        startClock();
-      }, 20000);
-    }
-
-    function startClock() {
-      const canvas = document.getElementById("dialCanvas");
-      const ctx = canvas.getContext("2d");
-
-      function resizeCanvas() {
-        const size = Math.min(window.innerWidth * 0.9, window.innerHeight * 0.6);
-        canvas.width = size;
-        canvas.height = size;
-      }
-
-      window.addEventListener("resize", () => {
-        resizeCanvas();
-        update();
-      });
-
+    
+    // Call resize on load
+    resizeCanvas();
+    
+    // Listen for window resize
+    window.addEventListener('resize', function() {
       resizeCanvas();
-
-      function drawClock() {
-        const now = new Date();
-        const totalMinutes = 24 * 60;
-        const minutesPassed = now.getHours() * 60 + now.getMinutes();
-        const tokensLeft = 1440 - minutesPassed;
-
-        const width = canvas.width;
-        const height = canvas.height;
-        const cx = width / 2;
-        const cy = height / 2;
-        const radius = Math.min(width, height) / 2 - 20;
-
-        ctx.clearRect(0, 0, width, height);
-
+      requestAnimationFrame(update);
+    });
+    
+    // Get dimensions
+    let W = canvas.width;
+    let H = canvas.height;
+    let cx = W / 2;
+    let cy = H / 2;
+    let radius = Math.min(W, H) * 0.4;
+    
+    // Sun/Moon transition parameters
+    const sunriseHour = 6;  // 6 AM
+    const sunsetHour = 18;  // 6 PM
+    
+    // Track previous minute to detect changes
+    let previousMinute = new Date().getMinutes();
+    let isMinuteBlinking = false;
+    
+    function drawDial() {
+      // Update dimensions in case of resize
+      W = canvas.width;
+      H = canvas.height;
+      cx = W / 2;
+      cy = H / 2;
+      radius = Math.min(W, H) * 0.4;
+      
+      ctx.clearRect(0, 0, W, H);
+      
+      // Outer ring
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = W * 0.02;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius, 0, 2*Math.PI);
+      ctx.stroke();
+      
+      // Inner ring
+      ctx.strokeStyle = '#444';
+      ctx.lineWidth = W * 0.006;
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius * 0.9, 0, 2*Math.PI);
+      ctx.stroke();
+      
+      // Add "1440TIME™" text at the top
+      ctx.fillStyle = '#00ff00'; // Matrix green
+      ctx.font = `bold ${Math.max(12, W * 0.04)}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('1440TIME™', cx, cy - radius - 15);
+      
+      // Tick marks (144 total, larger every 12)
+      for (let i = 0; i < 144; i++) {
+        const angle = (i / 144) * 2*Math.PI - Math.PI/2;
+        const isLargeTick = i % 12 === 0;
+        const tickLength = isLargeTick ? radius * 0.12 : radius * 0.05;
+        
+        const x1 = cx + Math.cos(angle) * (radius - tickLength);
+        const y1 = cy + Math.sin(angle) * (radius - tickLength);
+        const x2 = cx + Math.cos(angle) * radius;
+        const y2 = cy + Math.sin(angle) * radius;
+        
+        ctx.strokeStyle = isLargeTick ? '#666' : '#444';
+        ctx.lineWidth = isLargeTick ? W * 0.006 : W * 0.003;
         ctx.beginPath();
-        ctx.arc(cx, cy, radius, 0, 2 * Math.PI);
-        ctx.strokeStyle = "#00ff00";
-        ctx.lineWidth = 4;
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
         ctx.stroke();
-
-        const angle = (minutesPassed / 1440) * 2 * Math.PI - Math.PI / 2;
-
+      }
+      
+      // Labels every 120 tokens (12 labels)
+      ctx.fillStyle = '#fff';
+      ctx.font = `bold ${Math.max(10, W * 0.03)}px Arial`; // Bold white font
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      
+      for (let i = 0; i < 12; i++) {
+        const angle = (i / 12) * 2*Math.PI - Math.PI/2;
+        const label = 1440 - i*120;
+        const labelDist = radius * 0.8;
+        const x = cx + Math.cos(angle) * labelDist;
+        const y = cy + Math.sin(angle) * labelDist;
+        
+        ctx.fillText(label.toString(), x, y);
+      }
+      
+      // Now add dash marks at 60-minute intervals (halfway between the 120-minute marks)
+      ctx.strokeStyle = '#777';
+      ctx.lineWidth = W * 0.004;
+      
+      for (let i = 0; i < 24; i++) {
+        if (i % 2 !== 0) { // Only draw dashes at odd intervals (60-minute intervals)
+          const angle = (i / 24) * 2*Math.PI - Math.PI/2;
+          const dashOuterDist = radius * 0.98;
+          const dashInnerDist = radius * 0.9;
+          
+          const x1 = cx + Math.cos(angle) * dashInnerDist;
+          const y1 = cy + Math.sin(angle) * dashInnerDist;
+          const x2 = cx + Math.cos(angle) * dashOuterDist;
+          const y2 = cy + Math.sin(angle) * dashOuterDist;
+          
+          ctx.beginPath();
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.stroke();
+        }
+      }
+      
+      // Add prominent markers at quarter points (1440, 1080, 720, 360)
+      ctx.strokeStyle = '#00ff00'; // Matrix green to match "Think Outside the Clock"
+      ctx.lineWidth = W * 0.006; // Slightly thinner line
+      
+      const quarterPoints = [0, 3, 6, 9]; // Corresponds to 1440, 1080, 720, 360
+      for (let i of quarterPoints) {
+        const angle = (i / 12) * 2*Math.PI - Math.PI/2;
+        
+        // Draw smaller but still visible marker
+        const markerOuterDist = radius * 1.02;
+        const markerInnerDist = radius * 0.88;
+        
+        const x1 = cx + Math.cos(angle) * markerInnerDist;
+        const y1 = cy + Math.sin(angle) * markerInnerDist;
+        const x2 = cx + Math.cos(angle) * markerOuterDist;
+        const y2 = cy + Math.sin(angle) * markerOuterDist;
+        
         ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.lineTo(cx + radius * Math.cos(angle), cy + radius * Math.sin(angle));
-        ctx.strokeStyle = "#ff0000";
-        ctx.lineWidth = 6;
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
         ctx.stroke();
-
-        ctx.fillStyle = "#00ff00";
-        ctx.font = `${radius * 0.25}px Arial`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(`${tokensLeft} tokens`, cx, cy);
       }
-
-      function update() {
-        drawClock();
-        requestAnimationFrame(update);
-      }
-
-      update();
     }
+    
+    // Function to draw sun or moon based on time of day
+    function drawCelestialBody(now) {
+      const hour = now.getHours();
+      const minute = now.getMinutes();
+      const totalMinutesInDay = 24 * 60;
+      const currentMinuteOfDay = hour * 60 + minute;
+      
+      // Calculate angle based on 24-hour clock
+      // At midnight (0:00), angle is -90 degrees (top)
+      // At noon (12:00), angle is 90 degrees (bottom)
+      // This follows the same logic as the minute hand
+      const angle = ((currentMinuteOfDay / totalMinutesInDay) * 2 * Math.PI) - (Math.PI/2);
+      
+      // Position on the clock face matching the time
+      // Keep the celestial body slightly outside the tick marks
+      const celestialDistance = radius * 1.1;
+      const x = cx + Math.cos(angle) * celestialDistance;
+      const y = cy + Math.sin(angle) * celestialDistance;
+      
+      const celestialRadius = radius * 0.09;
+      
+      // Determine if day or night
+      if (hour >= sunriseHour && hour < sunsetHour) {
+        // Draw sun
+        ctx.fillStyle = '#ffa500';
+        ctx.beginPath();
+        ctx.arc(x, y, celestialRadius, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // Sun rays
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = Math.max(1, W * 0.003);
+        
+        for (let i = 0; i < 8; i++) {
+          const rayAngle = i * Math.PI / 4;
+          const innerRadius = celestialRadius * 1.2;
+          const outerRadius = celestialRadius * 1.9;
+          
+          ctx.beginPath();
+          ctx.moveTo(
+            x + Math.cos(rayAngle) * innerRadius,
+            y + Math.sin(rayAngle) * innerRadius
+          );
+          ctx.lineTo(
+            x + Math.cos(rayAngle) * outerRadius,
+            y + Math.sin(rayAngle) * outerRadius
+          );
+          ctx.stroke();
+        }
+      } else {
+        // Draw moon
+        ctx.fillStyle = '#ddd';
+        ctx.beginPath();
+        ctx.arc(x, y, celestialRadius, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // Add some craters for realism
+        ctx.fillStyle = '#bbb';
+        // Crater 1
+        ctx.beginPath();
+        ctx.arc(x - celestialRadius * 0.4, y - celestialRadius * 0.2, celestialRadius * 0.2, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // Crater 2
+        ctx.beginPath();
+        ctx.arc(x + celestialRadius * 0.3, y + celestialRadius * 0.3, celestialRadius * 0.15, 0, 2 * Math.PI);
+        ctx.fill();
+        
+        // Crater 3
+        ctx.beginPath();
+        ctx.arc(x + celestialRadius * 0.1, y - celestialRadius * 0.4, celestialRadius * 0.1, 0, 2 * Math.PI);
+        ctx.fill();
+      }
+    }
+    
+    function drawHandAndInfo(isBlinking = false) {
+      const now = new Date();
+      const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      const elapsed = (now.getTime() - midnight) / 1000;      // seconds since midnight
+      const totalSecs = 24 * 60 * 60;                        // seconds in a day
+      const pctLeft = (totalSecs - elapsed) / totalSecs;     // fraction of day remaining
+      const tokens = Math.floor(1440 * pctLeft);             // minutes left
+      
+      // Draw center circle
+      ctx.fillStyle = '#222';
+      ctx.beginPath();
+      ctx.arc(cx, cy, radius * 0.15, 0, 2*Math.PI);
+      ctx.fill();
+      ctx.strokeStyle = '#555';
+      ctx.lineWidth = W * 0.004;
+      ctx.stroke();
+      
+      // ---- RED MINUTE HAND: tokensRemaining ----
+      const handAngle = -Math.PI/2 + (1 - tokens/1440) * 2 * Math.PI;
+      
+      // Draw shadow for hand
+      ctx.strokeStyle = 'rgba(255,0,0,0.2)';
+      ctx.lineWidth = W * 0.01; // Thinner shadow
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(
+        cx + Math.cos(handAngle) * radius * 0.75,
+        cy + Math.sin(handAngle) * radius * 0.75
+      );
+      ctx.stroke();
+      
+      // Draw hand
+      ctx.strokeStyle = '#f00';
+      ctx.lineWidth = W * 0.005; // Thinner hand
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(
+        cx + Math.cos(handAngle) * radius * 0.75,
+        cy + Math.sin(handAngle) * radius * 0.75
+      );
+      ctx.stroke();
+      
+      // ---- CENTER TEXT ----
+      // Current time
+      let h = now.getHours(), m = now.getMinutes();
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      m = m < 10 ? '0' + m : m;
+      const timeStr = `${h}:${m} ${ampm}`;
+      
+      // Display standard time
+      ctx.fillStyle = '#00ccff'; // Matrix blue pill color
+      ctx.font = `${Math.max(10, W * 0.03)}px Arial`; // Slightly larger standard time
+      ctx.fillText(timeStr, cx, cy - radius * 0.3);
+      
+      // Display 1440X with glowing X - slightly smaller
+      const centerFontSize = Math.max(10, W * 0.035); // Smaller size for 1440X
+      ctx.fillStyle = '#ff0000';
+      ctx.font = `bold ${centerFontSize}px Arial`;
+      
+      // Draw "1440" first
+      ctx.fillText('1440', cx - centerFontSize/2, cy);
+      
+      // Draw glowing X
+      // Shadow effect for glow
+      ctx.save();
+      ctx.shadowColor = '#ff6666';
+      ctx.shadowBlur = 10;
+      ctx.fillText('X', cx + centerFontSize, cy);
+      ctx.restore();
+      
+      // Brighter center of X for more glow effect
+      ctx.fillStyle = '#ff3333';
+      ctx.fillText('X', cx + centerFontSize, cy);
+      
+      // Display tokens as number - make it blink if a minute just passed
+      if (isBlinking && Math.floor(Date.now() / 200) % 2 === 0) {
+        // Skip drawing the number during blink off phase
+      } else {
+        // Add text glow effect
+        ctx.shadowColor = 'rgba(0, 255, 0, 0.5)';
+        ctx.shadowBlur = 10;
+        ctx.fillStyle = '#00ff00'; // Matrix green for the remaining minutes
+        ctx.font = `bold ${Math.max(16, W * 0.08)}px Arial`;
+        ctx.fillText(tokens.toString(), cx, cy + radius * 0.25);
+        ctx.shadowBlur = 0; // Reset shadow
+      }
+    }
+    
+    function update() {
+      drawDial();
+      
+      // Check if minute has changed
+      const now = new Date();
+      const currentMinute = now.getMinutes();
+      
+      if (currentMinute !== previousMinute) {
+        // Start blinking effect
+        isMinuteBlinking = true;
+        let blinkCount = 0;
+        const blinkInterval = setInterval(() => {
+          if (blinkCount >= 6) { // 3 on-off cycles
+            clearInterval(blinkInterval);
+            isMinuteBlinking = false;
+          }
+          blinkCount++;
+        }, 200);
+        
+        // Update previous minute
+        previousMinute = currentMinute;
+      }
+      
+      // Draw sun/moon based on time of day
+      drawCelestialBody(now);
+      
+      // Regular display but with blinking minute value
+      drawHandAndInfo(isMinuteBlinking);
+      
+      requestAnimationFrame(update);
+    }
+    
+    // Start the app
+    update();
   </script>
 </body>
 </html>
